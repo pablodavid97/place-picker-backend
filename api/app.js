@@ -68,6 +68,14 @@ app.use('/images', express.static(path.join(process.cwd(), 'images')));
 
 // 404 Handler
 app.use((req, res) => {
+    if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        return res.status(200).end();
+    }
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+
     res.status(404).json({ message: '404 - Not Found' });
 });
 
