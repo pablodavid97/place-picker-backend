@@ -1,7 +1,7 @@
-import fs from 'node:fs/promises';
+import fs from 'fs/promises';
 import express from 'express';
 import bodyParser from 'body-parser';
-import { createServer } from 'http';
+import path from 'path';
 
 const app = express();
 
@@ -17,35 +17,55 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
+// Function to resolve file paths
+const resolveFilePath = (fileName) => path.resolve(__dirname, 'data', fileName);
+
 app.get('/places', async (req, res) => {
-    const fileContent = await fs.readFile('./data/places.json');
-    const placesData = JSON.parse(fileContent);
-    res.status(200).json({ places: placesData });
+    try {
+        const filePath = resolveFilePath('places.json');
+        const fileContent = await fs.readFile(filePath);
+        const placesData = JSON.parse(fileContent);
+        res.status(200).json({ places: placesData });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error reading places data',
+            error: error.message,
+        });
+    }
 });
 
 app.get('/user-places', async (req, res) => {
-    const fileContent = await fs.readFile('./data/user-places.json');
-    const places = JSON.parse(fileContent);
-    res.status(200).json({ places });
+    try {
+        const filePath = resolveFilePath('user-places.json');
+        const fileContent = await fs.readFile(filePath);
+        const places = JSON.parse(fileContent);
+        res.status(200).json({ places });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error reading user places data',
+            error: error.message,
+        });
+    }
 });
 
 app.put('/user-places', async (req, res) => {
-    const places = req.body.places;
-    await fs.writeFile('./data/user-places.json', JSON.stringify(places));
-    res.status(200).json({ message: 'User places updated!' });
+    try {
+        const places = req.body.places;
+        const filePath = resolveFilePath('user-places.json');
+        await fs.writeFile(filePath, JSON.stringify(places));
+        res.status(200).json({ message: 'User places updated!' });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error updating user places',
+            error: error.message,
+        });
+    }
 });
 
 // 404 Handler
-app.use((req, res, next) => {
-    if (req.method === 'OPTIONS') {
-        return next();
-    }
+app.use((req, res) => {
     res.status(404).json({ message: '404 - Not Found' });
 });
 
 // Export as Serverless Function
-export default function handler(req, res) {
-    const server = createServer(app);
-    server.emit('request', req, res);
-}
+export default app;
