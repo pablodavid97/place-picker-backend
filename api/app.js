@@ -63,6 +63,9 @@ app.put('/user-places', async (req, res) => {
     }
 });
 
+// Serve images from 'images' directory
+app.use('/images', express.static(path.join(process.cwd(), 'images')));
+
 // 404 Handler
 app.use((req, res) => {
     res.status(404).json({ message: '404 - Not Found' });
