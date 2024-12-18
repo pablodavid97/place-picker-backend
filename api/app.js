@@ -56,6 +56,7 @@ app.put('/user-places', async (req, res) => {
         await fs.writeFile(filePath, JSON.stringify(places));
         res.status(200).json({ message: 'User places updated!' });
     } catch (error) {
+        console.log('error: ', error);
         res.status(500).json({
             message: 'Error updating user places',
             error: error.message,
@@ -67,7 +68,7 @@ app.put('/user-places', async (req, res) => {
 app.use('/images', express.static(path.join(process.cwd(), 'images')));
 
 // 404 Handler
-app.use((req, res) => {
+app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
