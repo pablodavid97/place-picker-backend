@@ -18,7 +18,8 @@ app.use((req, res, next) => {
 });
 
 // Function to resolve file paths
-const resolveFilePath = (fileName) => path.resolve(__dirname, 'data', fileName);
+const resolveFilePath = (fileName) =>
+    path.resolve(process.cwd(), 'data', fileName);
 
 app.get('/places', async (req, res) => {
     try {
